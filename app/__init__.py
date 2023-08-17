@@ -29,4 +29,5 @@ def create_app():
     app.register_blueprint(ai_stock.bp)
 
 
+
     return app
