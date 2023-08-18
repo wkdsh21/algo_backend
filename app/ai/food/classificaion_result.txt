@@ -1,0 +1,7 @@
+data\samples\__1.jpg,12011002,F
+data\samples\__1.jpg,12011002,F
+data\samples\__1.jpg,00000000,N
+data\samples\__3.jpg,04011010,F
+data\samples\__3.jpg,04011010,F
+data\samples\__3.jpg,00000000,N
+data\samples\__merci.jpg,00000000,N

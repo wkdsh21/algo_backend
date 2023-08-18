@@ -7,3 +7,8 @@ app/__pycache__/
 app/ai/stock/__pycache__/
 app/__pycache__/__init__.cpython-311.pyc
 app/__pycache__/ai_stock.cpython-311.pyc
+
+*.pth
+*.csv
+*.pt
+*.xlsx
