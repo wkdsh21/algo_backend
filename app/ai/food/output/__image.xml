@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <annotation>
   <folder>app\ai\food\output</folder>
-  <filename>app\ai\food\data\samples\__1.jpg</filename>
-  <path>app\ai\food\output\__1.jpg</path>
+  <filename>app\ai\food\data\samples\__image.jpg</filename>
+  <path>app\ai\food\output\__image.jpg</path>
   <object>
     <name>11011009</name>
     <bndbox>

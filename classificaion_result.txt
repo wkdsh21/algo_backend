@@ -1,7 +1,3 @@
-app\ai\food\data\samples\__1.jpg,11011009,F
-app\ai\food\data\samples\__1.jpg,11011009,F
-app\ai\food\data\samples\__1.jpg,00000000,N
-app\ai\food\data\samples\__3.jpg,00000000,N
-app\ai\food\data\samples\__merci.jpg,08011003,F
-app\ai\food\data\samples\__merci.jpg,08011003,F
-app\ai\food\data\samples\__merci.jpg,00000000,N
+app\ai\food\data\samples\__image.jpg,11011009,F
+app\ai\food\data\samples\__image.jpg,11011009,F
+app\ai\food\data\samples\__image.jpg,00000000,N
