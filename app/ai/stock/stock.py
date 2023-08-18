@@ -43,7 +43,7 @@ def stock(img):
     )
 
     # 이미지 불러오기 및 전처리
-    image = Image.open(img)
+    image = img
     input_tensor = preprocess(image)
     input_batch = input_tensor.unsqueeze(0)  # 모델 입력 형태로 변환
 

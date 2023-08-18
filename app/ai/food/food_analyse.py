@@ -526,7 +526,7 @@ def food_response_dto(nutritional):
 
 #재료 가져오기
 def get_material(food_name):
-    db_path = r"C:\AI\fooddata\yolov3\TB_RECIPE_SEARCH-220701 (1).csv"
+    db_path = r"app\AI\food\data\TB_RECIPE_SEARCH-220701 (1).csv"
     with open(db_path, 'r', newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         # 첫 번째 행은 헤더로 가정
@@ -645,11 +645,11 @@ if __name__ == '__main__':
     #print(food_names)
     
     #음식 무게 추출
-    food_weight = get_food_weight(r"C:\AI\fooddata\yolov3\456.jpg")
+    food_weight = get_food_weight(r"app\AI\food\data\samples\__3.jpg")
     #print(food_weight)
 
     #음식 영양소 추출
-    nut_path = r"C:\AI\fooddata\yolov3\음식분류 AI 데이터 영양DB.xlsx"
+    nut_path = r"app\AI\food\data\음식분류 AI 데이터 영양DB.xlsx"
     nutritional = get_nutritional_information(food_names[0],food_weight,nut_path)
     #print(nutritional)
 
