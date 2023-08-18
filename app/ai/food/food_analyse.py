@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 import csv
 import pandas as pd
-from testgo import return_weight
-from detect_1231 import detect 
+from app.ai.food.testgo import return_weight
+from app.ai.food.detect_1231 import detect 
 from datetime import datetime
 import re
 

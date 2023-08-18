@@ -1,9 +1,9 @@
 # -*-coding:utf-8-*-
 import argparse
 
-from food_models import *  # set ONNX_EXPORT in models.py
-from utils.datasets import *
-from utils.utils import *
+from app.ai.food.food_models import *  # set ONNX_EXPORT in models.py
+from app.ai.food.utils.datasets import *
+from app.ai.food.utils.utils import *
 from xml.etree.ElementTree import Element, SubElement, ElementTree
 import numpy as np
 import platform as pf

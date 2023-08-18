@@ -12,3 +12,5 @@ app/__pycache__/ai_stock.cpython-311.pyc
 *.csv
 *.pt
 *.xlsx
+
+*.pyc
