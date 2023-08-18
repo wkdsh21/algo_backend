@@ -1,6 +1,6 @@
-from utils.google_utils import *
-from utils.layers import *
-from utils.parse_config import *
+from app.ai.food.utils.google_utils import *
+from app.ai.food.utils.layers import *
+from app.ai.food.utils.parse_config import *
 
 ONNX_EXPORT = False
 

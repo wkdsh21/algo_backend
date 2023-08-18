@@ -24,9 +24,11 @@ def create_app():
 
     # blueprint
     from . import ai_stock
+    from . import ai_food
 
 
     app.register_blueprint(ai_stock.bp)
+    app.register_blueprint(ai_food.bp)
 
 
 
