@@ -6,22 +6,24 @@ import requests
 import re
 from app.ai.stock.stock import stock
 from difflib import SequenceMatcher
+import os
 
-
-bp = Blueprint('ai_stock', __name__, url_prefix='/ai_stock')
+bp = Blueprint('ai_stock', __name__, url_prefix='/stockcnn')
 
 @bp.route('/', methods=["POST"])
 def ai_stock_api():
     print("dddddddd")
     if request.method == "POST":
         if 'image' in request.files:
-            print("dddddddd")
             image = request.files['image']
         else:
             return "image null"
-        print("dddddddd")
+        image_path = os.path.join("./", "image.jpg")
+
+        # 이미지 데이터를 파일에 저장
+        with open(image_path, "wb") as image_file:
+            image_file.write(image.read())
         image=Image.open(image)
-        print("dddddddd")
         row=stock(image)
         if not row:
             return "이미지 탐색불가 OCR 사용"
@@ -45,8 +47,8 @@ def ai_stock_api():
             "fatty": 0,
             "transfat": 0
             }
-        responsedata["allergy"]="알수없음"
-        responsedata["material"]="알수없음"
+        responsedata["allergy"]=[]
+        responsedata["material"]=[]
         # nutrition='{"1회제공량":"2.1","총내용량(g)":"86","총내용량(mL)":"0","에너지(㎉)":"205","단백질(g)":"0","지방(g)":"0","탄수화물(g)":"2","총당류(g)":"0","총 식이섬유(g)":"0","칼슘(㎎)":"0","철(㎍)":"0","마그네슘(㎎)":"카페인(㎎)":"0"0","칼륨(㎎)":"0","나트륨(㎎)":"0","비타민":"10","콜레스테롤(㎎)":"0","총 지방산(g)":"0",}'
         nutrition=row[3]
         # responsedata["name"]='롯데)자일리톨베타비타D용기86G'
@@ -72,10 +74,10 @@ def ai_stock_api():
         except:
             return "이미지 탐색불가 OCR 사용"
         max=0
-        with open('./app/ai/stock/output.txt', 'r') as f:
+        with open('./app/ai/stock/name.txt', 'r') as f:
             for line in f:  # 한 줄씩 읽기
                 prob=SequenceMatcher(None, responsedata["name"], line.strip()).ratio()
-                if max<prob:  # 줄 바꿈 문자 제거 후 출력
+                if max<prob:
                     max=prob
                     maxword=line.strip()
         if max>0.5:
@@ -93,46 +95,71 @@ def ai_stock_api():
             data = response.json()
             if data["body"]["totalCount"]!='0':
                 rawmtrl=data["body"]["items"][0]["item"]["rawmtrl"]
+                rawmtrl=rawmtrl if rawmtrl!="알수없음" else []
                 allergy=data["body"]["items"][0]["item"]["allergy"]
-                rawmtrl
-                if rawmtrl=="알수없음" and allergy=="알수없음":
+                allergy=allergy if allergy!="알수없음" else []
+                if not(rawmtrl or allergy):
                     return json.dumps(responsedata)
                 else:
-                    print(rawmtrl)
-                    parts=rawmtrl.split(",") if rawmtrl!="알수없음" else []
-                    if parts!=[]:
-                        #(,) 괄호 안에 쉼표는 무시하는 코드
-                        processed_parts = []
+                    if rawmtrl:
+                        print(rawmtrl)
+                        pattern = r'[^0-9%.]'
+                        rawmtrl = ''.join(re.findall(pattern, rawmtrl))
+                        print(rawmtrl)
+                        pattern = r'[^가-힣]+'
+                        rawmtrl = re.split(pattern, rawmtrl)
+                        rawmtrl=list(set(rawmtrl))
+                        print(rawmtrl)
+                        with open('./app/ai/stock/material.txt', 'r', encoding='utf-8') as f:
+                            responsedata["material"]=[line.strip() for line in f if line.strip() in rawmtrl]
+                        print(responsedata["material"])
+                    responsedata["allergy"]=allergy.split(",") if allergy else []
+                    # for i in rawmtrl:
+                    #     max=0
+                    #     with open('./app/ai/stock/material.txt', 'r', encoding='utf-8') as f:
+                    #         for line in f:
+                    #             if i in line.strip():
+                    #                 prob=SequenceMatcher(None, i, line.strip()).ratio()
+                    #                 if max<prob:
+                    #                     max=prob
+                    #                     maxword=line.strip()
+                    #     responsedata["material"].append(maxword)
+                    # responsedata["material"]=list(set(responsedata["material"]))
+                    # print(responsedata["material"])
+                    # parts=rawmtrl.split(",") if rawmtrl!="알수없음" else []
+                    # if parts!=[]:
+                    #     #(,) 괄호 안에 쉼표는 무시하는 코드
+                    #     processed_parts = []
 
-                        inside_parentheses = False
-                        current_part = ""
+                    #     inside_parentheses = False
+                    #     current_part = ""
 
-                        for part in parts:
-                            if '(' in part and ')' in part:
-                                processed_parts.append(part)
-                            elif '(' in part:
-                                inside_parentheses = True
-                                current_part = part
-                            elif ')' in part:
-                                inside_parentheses = False
-                                current_part += ',' + part
-                                processed_parts.append(current_part)
-                            elif inside_parentheses:
-                                current_part += ',' + part
-                            else:
-                                processed_parts.append(part)
-                        print(processed_parts)
-                        #괄호밖은 삭제 괄호안에있는 원재료들 리스트에추가
-                        for idx,val in enumerate(processed_parts):
-                            if "(" in val:
-                                start=val.find("(")
-                                end=val.find(")")
-                                processed_parts.pop(idx)
-                                for i in val[start+1:end].split(","):
-                                    processed_parts.insert(idx,i)
-                    print(processed_parts)
-                    responsedata["material"]=processed_parts
-                    responsedata["allergy"]=allergy.split(",") if allergy!="알수없음" else []
+                    #     for part in parts:
+                    #         if '(' in part and ')' in part:
+                    #             processed_parts.append(part)
+                    #         elif '(' in part:
+                    #             inside_parentheses = True
+                    #             current_part = part
+                    #         elif ')' in part:
+                    #             inside_parentheses = False
+                    #             current_part += ',' + part
+                    #             processed_parts.append(current_part)
+                    #         elif inside_parentheses:
+                    #             current_part += ',' + part
+                    #         else:
+                    #             processed_parts.append(part)
+                    #     print(processed_parts)
+                    #     #괄호밖은 삭제 괄호안에있는 원재료들 리스트에추가
+                    #     for idx,val in enumerate(processed_parts):
+                    #         if "(" in val:
+                    #             start=val.find("(")
+                    #             end=val.find(")")
+                    #             processed_parts.pop(idx)
+                    #             for i in val[start+1:end].split(","):
+                    #                 processed_parts.insert(idx,i)
+                    # print(processed_parts)
+                    # responsedata["material"]=processed_parts
+                    # responsedata["allergy"]=allergy.split(",") if allergy!="알수없음" else []
             else:
                 return json.dumps(responsedata)
         else:

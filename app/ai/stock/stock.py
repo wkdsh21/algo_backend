@@ -38,12 +38,12 @@ def stock(img):
         [
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ]
     )
 
     # 이미지 불러오기 및 전처리
-    image = img
+    image = img.convert('RGB')
     input_tensor = preprocess(image)
     input_batch = input_tensor.unsqueeze(0)  # 모델 입력 형태로 변환
 

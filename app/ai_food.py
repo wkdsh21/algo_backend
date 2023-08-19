@@ -16,7 +16,7 @@ import os
 from app.ai.food import food_analyse as food
 
 
-bp = Blueprint('ai_food', __name__, url_prefix='/ai_food')
+bp = Blueprint('ai_food', __name__, url_prefix='/foodcnn')
 
 @bp.route('/', methods=['POST'])
 def ai_stock_api():
