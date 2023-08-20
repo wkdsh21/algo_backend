@@ -7,6 +7,8 @@ import re
 from app.ai.stock.stock import stock
 from difflib import SequenceMatcher
 import os
+from app.models import *
+from app import db
 
 bp = Blueprint('ai_stock', __name__, url_prefix='/stockcnn')
 
@@ -24,31 +26,37 @@ def ai_stock_api():
         with open(image_path, "wb") as image_file:
             image_file.write(image.read())
         image=Image.open(image)
-        row=stock(image)
+        row,prob=stock(image)
+        if prob<0.5:
+            return json.dumps({"idx":-1})
         if not row:
-            return "이미지 탐색불가 OCR 사용"
+            return json.dumps({"idx":-1})
         row=list(row)[0]
-        responsedata={}
-        responsedata["nutrition"]={
-            "kcal": 0,
-            "protein": 0,
-            "fat": 0,
-            "glucide": 0,
-            "sugar": 0,
-            "dietaryfiber": 0,
-            "calcium": 0,
-            "Iron": 0,
-            "magnesium": 0,
-            "caffeine": 0,
-            "Potassium": 0,
-            "Natrium": 0,
-            "vitamin": 0,
-            "cholesterol": 0,
-            "fatty": 0,
-            "transfat": 0
-            }
-        responsedata["allergy"]=[]
-        responsedata["material"]=[]
+        responsedata={  "hate":[],
+                        "idx":1,
+                        "allergy":[],
+                        "material":[],
+                        "name":"",
+                        "date":str(datetime.date.today()),
+                        "nutrition":{
+                        "kcal": 0,
+                        "protein": 0,
+                        "fat": 0,
+                        "glucide": 0,
+                        "sugar": 0,
+                        "dietaryfiber": 0,
+                        "calcium": 0,
+                        "Iron": 0,
+                        "magnesium": 0,
+                        "caffeine": 0,
+                        "Potassium": 0,
+                        "Natrium": 0,
+                        "vitamin": 0,
+                        "cholesterol": 0,
+                        "fatty": 0,
+                        "transfat": 0
+                        }
+                    }
         # nutrition='{"1회제공량":"2.1","총내용량(g)":"86","총내용량(mL)":"0","에너지(㎉)":"205","단백질(g)":"0","지방(g)":"0","탄수화물(g)":"2","총당류(g)":"0","총 식이섬유(g)":"0","칼슘(㎎)":"0","철(㎍)":"0","마그네슘(㎎)":"카페인(㎎)":"0"0","칼륨(㎎)":"0","나트륨(㎎)":"0","비타민":"10","콜레스테롤(㎎)":"0","총 지방산(g)":"0",}'
         nutrition=row[3]
         # responsedata["name"]='롯데)자일리톨베타비타D용기86G'
@@ -58,7 +66,6 @@ def ai_stock_api():
         #     # 숫자가 발견된 경우, 해당 위치부터 문자열의 끝까지를 삭제합니다.
         #     index = match.start()
         #     responsedata["name"] = responsedata["name"][:index]
-        responsedata["date"]=str(datetime.date.today())
         start=nutrition.find('"마그네슘(㎎)"')
         end=nutrition.find('"칼륨(㎎)"')
         nutrition=nutrition[:start]+nutrition[end:-2]+nutrition[-1]
@@ -72,7 +79,7 @@ def ai_stock_api():
                     if dict[i] in responsedata["nutrition"]:
                         responsedata["nutrition"][dict[i]]=float(nutrition[i])
         except:
-            return "이미지 탐색불가 OCR 사용"
+            return json.dumps({"idx":-1})
         max=0
         with open('./app/ai/stock/name.txt', 'r') as f:
             for line in f:  # 한 줄씩 읽기
@@ -99,7 +106,10 @@ def ai_stock_api():
                 allergy=data["body"]["items"][0]["item"]["allergy"]
                 allergy=allergy if allergy!="알수없음" else []
                 if not(rawmtrl or allergy):
-                    return json.dumps(responsedata)
+                    q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
+                    db.session.add(q)
+                    db.session.commit()
+                    return json.dumps(responsedata,ensure_ascii=False)
                 else:
                     if rawmtrl:
                         print(rawmtrl)
@@ -161,8 +171,14 @@ def ai_stock_api():
                     # responsedata["material"]=processed_parts
                     # responsedata["allergy"]=allergy.split(",") if allergy!="알수없음" else []
             else:
-                return json.dumps(responsedata)
+                q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
+                db.session.add(q)
+                db.session.commit()
+                return json.dumps(responsedata,ensure_ascii=False)
         else:
             print("API 요청 실패:", response.status_code)
         print(responsedata)
-        return json.dumps(responsedata)
+        q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
+        db.session.add(q)
+        db.session.commit()
+        return json.dumps(responsedata,ensure_ascii=False)

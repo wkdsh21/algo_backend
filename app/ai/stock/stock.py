@@ -76,4 +76,4 @@ def stock(img):
     for row in result:
         print(row)
     
-    return result
+    return result,max_prob.item()
