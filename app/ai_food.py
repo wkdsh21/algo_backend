@@ -24,6 +24,7 @@ def ai_stock_api():
         image_data = request.files['image'].read()
         image = Image.open(io.BytesIO(image_data))
 
+        
         #이미지 저장
         delete_and_save_image(r"app\ai\food\data\samples", image_data)
 
@@ -32,15 +33,18 @@ def ai_stock_api():
         
         #이름 받아오기
         names = food.get_name(r"app\ai\food\output\__image.xml")
-        food_names = food.get_food_name(names)
+        print(names)
 
+        food_names = food.get_food_name(names)
+        print(food_names)
         #음식 무게 추출
         food_weight = food.get_food_weight(r"C:\AI\fooddata\yolov3\456.jpg")
+        print(food_weight)
         
         #음식 영양소 추출
         nut_path = r"C:\AI\fooddata\yolov3\음식분류 AI 데이터 영양DB.xlsx"
         nutritional = food.get_nutritional_information(food_names[0],food_weight,nut_path)
-
+        
         #딕셔너리 형태로 저장
         food_dict = food.food_response_dto(nutritional)
         print(food_dict)

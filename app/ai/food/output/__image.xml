@@ -4,30 +4,12 @@
   <filename>app\ai\food\data\samples\__image.jpg</filename>
   <path>app\ai\food\output\__image.jpg</path>
   <object>
-    <name>11011009</name>
-    <bndbox>
-      <xmin>43</xmin>
-      <ymin>62</ymin>
-      <xmax>165</xmax>
-      <ymax>155</ymax>
-    </bndbox>
-  </object>
-  <object>
-    <name>11011009</name>
-    <bndbox>
-      <xmin>43</xmin>
-      <ymin>62</ymin>
-      <xmax>165</xmax>
-      <ymax>155</ymax>
-    </bndbox>
-  </object>
-  <object>
     <name>00000000</name>
     <bndbox>
-      <xmin>26</xmin>
-      <ymin>75</ymin>
-      <xmax>186</xmax>
-      <ymax>163</ymax>
+      <xmin>40</xmin>
+      <ymin>212</ymin>
+      <xmax>1046</xmax>
+      <ymax>1044</ymax>
     </bndbox>
   </object>
 </annotation>
