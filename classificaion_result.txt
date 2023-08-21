@@ -1,3 +1,1 @@
-app\ai\food\data\samples\__image.jpg,11011009,F
-app\ai\food\data\samples\__image.jpg,11011009,F
 app\ai\food\data\samples\__image.jpg,00000000,N

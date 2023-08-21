@@ -237,12 +237,12 @@ def detect(cfg, names, weights, source, output, img_size, conf_thres, iou_thres,
             os.system('open ' + save_path)
 
     print('Done. (%.3fs)' % (time.time() - t0))
-    tot = nT + nF + nND
-    accu = nT / tot
-    print('Number of Detected Objects: {0}, True: {1}, False: {2}, Not Detected: {3}, Accuracy: {4}'.format(tot, nT, nF, nND, accu)) 
-    with open('./classificaion_result.txt','w') as f:
-        rslt = [r + '\n' for r in rslt]
-        f.writelines(rslt)
+    # tot = nT + nF + nND
+    # accu = nT / tot
+    # print('Number of Detected Objects: {0}, True: {1}, False: {2}, Not Detected: {3}, Accuracy: {4}'.format(tot, nT, nF, nND, accu)) 
+    # with open('./classificaion_result.txt','w') as f:
+    #     rslt = [r + '\n' for r in rslt]
+    #     f.writelines(rslt)
 
 if __name__ == '__main__':
     # parser = argparse.ArgumentParser()

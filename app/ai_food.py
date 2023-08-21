@@ -10,10 +10,13 @@ import json
 import datetime
 import requests
 import re
+from app import db
+from app.models import *
+
 #from app.ai.stock.stock import stock
 import os
 
-from app.ai.food import food_analyse as food
+from app.ai.food import food_analyse
 
 
 bp = Blueprint('ai_food', __name__, url_prefix='/foodcnn')
@@ -24,33 +27,48 @@ def ai_stock_api():
         image_data = request.files['image'].read()
         image = Image.open(io.BytesIO(image_data))
 
-        #이미지 저장
-        delete_and_save_image(r"app\ai\food\data\samples", image_data)
+        try:
 
-        #이미지 분석
-        food.detect_image()
-        
-        #이름 받아오기
-        names = food.get_name(r"app\ai\food\output\__image.xml")
-        food_names = food.get_food_name(names)
+            #이미지 저장
+            delete_and_save_image(r"app\ai\food\data\samples", image_data)
 
-        #음식 무게 추출
-        food_weight = food.get_food_weight(r"C:\AI\fooddata\yolov3\456.jpg")
-        
-        #음식 영양소 추출
-        nut_path = r"C:\AI\fooddata\yolov3\음식분류 AI 데이터 영양DB.xlsx"
-        nutritional = food.get_nutritional_information(food_names[0],food_weight,nut_path)
+            #이미지 분석
+            food_analyse.detect_image()
+            
+            #이름 받아오기
+            names = food_analyse.get_name(r"app\ai\food\output\__image.xml")
+            # print(names)
 
-        #딕셔너리 형태로 저장
-        food_dict = food.food_response_dto(nutritional)
-        print(food_dict)
-        
-        #json 변환
-        json_string = json.dumps(food_dict, ensure_ascii=False, indent=4)  # indent 옵션으로 가독성을 높일 수 있음
+            food_names = food_analyse.get_food_name(names)
+            # print(food_names)
+            #음식 무게 추출
+            food_weight = food_analyse.get_food_weight(r"C:\AI\fooddata\yolov3\456.jpg")
+            # print(food_weight)
+            
+            #음식 영양소 추출
+            nut_path = r"C:\AI\fooddata\yolov3\음식분류 AI 데이터 영양DB.xlsx"
+            nutritional = food_analyse.get_nutritional_information(food_names[0],food_weight,nut_path)
+            
+            #딕셔너리 형태로 저장
+            food_dict = food_analyse.food_response_dto(nutritional)
+            #print(food_dict)
+            
+            #db 저장
+            db_pull_data = store_db(food_dict)  
+            
+            #json 변환
+            json_string = json.dumps(db_pull_data, ensure_ascii=False, indent=4)  # indent 옵션으로 가독성을 높일 수 있음
 
+            
+        except Exception:
+            error = {"idx" : -1}
+            return json.dumps(error, ensure_ascii=False, indent=4)
+
+       
+          
         return json_string
 
-    return "시발"
+    return "post 오류"
 
 
 
@@ -75,3 +93,16 @@ def delete_files_with_prefix(folder_path, prefix):
             file_path = os.path.join(folder_path, filename)
             os.remove(file_path)
             print(f"Deleted: {filename}")
+
+
+def store_db(responsedata):
+    q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
+    db.session.add(q)
+    db.session.commit()
+    
+    responsedata["idx"] = q.idx
+    return responsedata
+
+
+def compare_food_and_standard_value(food_dict):
+    3
