@@ -5,7 +5,7 @@ from app import db
 import json
 bp = Blueprint('login', __name__, url_prefix='/login')
 
-@bp.route('/', methods=["GET"])
+@bp.route('', methods=["GET"])
 def login_api():
     if request.method == "GET":
         q = User.query.get(1)

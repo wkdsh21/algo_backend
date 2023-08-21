@@ -5,7 +5,7 @@ import json
 
 bp = Blueprint('register', __name__, url_prefix='/register')
 
-@bp.route('/', methods=["POST"])
+@bp.route('', methods=["POST"])
 def register_api():
     if request.method == "POST":
         if User.query.all():

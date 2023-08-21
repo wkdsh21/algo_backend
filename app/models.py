@@ -27,6 +27,7 @@ class Stock(db.Model):
     itemCode=db.Column(db.String(45), nullable=False)
     name=db.Column(db.String(45), nullable=False)
     nutrition=db.Column(db.Text, nullable=False)
+    
 
 
 # 예제

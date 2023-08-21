@@ -2,14 +2,14 @@ from flask import Blueprint, jsonify, request
 from app.models import *
 from app import db
 import json
+import datetime
 
 bp = Blueprint('todayfood', __name__, url_prefix='/todayfood')
 
-@bp.route('/', methods=["GET"])
+@bp.route('', methods=["GET"])
 def todayfood_api():
     if request.method == "GET":
-        query = User.query.get(1)
-        query=query.food
+        query = Food.query.filter(Food.date==datetime.date.today()).all()
         res={"foods":[]}
         for i in query:
             q=i.__dict__

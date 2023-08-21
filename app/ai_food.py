@@ -18,7 +18,7 @@ from app.ai.food import food_analyse as food
 
 bp = Blueprint('ai_food', __name__, url_prefix='/foodcnn')
 
-@bp.route('/', methods=['POST'])
+@bp.route('', methods=['POST'])
 def ai_stock_api():
     if request.method == "POST":
         image_data = request.files['image'].read()

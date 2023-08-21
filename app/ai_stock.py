@@ -12,7 +12,7 @@ from app import db
 
 bp = Blueprint('ai_stock', __name__, url_prefix='/stockcnn')
 
-@bp.route('/', methods=["POST"])
+@bp.route('', methods=["POST"])
 def ai_stock_api():
     print("dddddddd")
     if request.method == "POST":
@@ -33,7 +33,7 @@ def ai_stock_api():
             return json.dumps({"idx":-1})
         row=list(row)[0]
         responsedata={  "hate":[],
-                        "idx":1,
+                        "idx":0,
                         "allergy":[],
                         "material":[],
                         "name":"",
@@ -109,6 +109,7 @@ def ai_stock_api():
                     q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
                     db.session.add(q)
                     db.session.commit()
+                    responsedata["idx"]=q.idx
                     return json.dumps(responsedata,ensure_ascii=False)
                 else:
                     if rawmtrl:
@@ -174,6 +175,7 @@ def ai_stock_api():
                 q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
                 db.session.add(q)
                 db.session.commit()
+                responsedata["idx"]=q.idx
                 return json.dumps(responsedata,ensure_ascii=False)
         else:
             print("API 요청 실패:", response.status_code)
@@ -181,4 +183,5 @@ def ai_stock_api():
         q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
         db.session.add(q)
         db.session.commit()
+        responsedata["idx"]=q.idx
         return json.dumps(responsedata,ensure_ascii=False)
