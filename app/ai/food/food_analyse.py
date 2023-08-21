@@ -506,7 +506,7 @@ def food_response_dto(nutritional):
     
     #dict 덮어쓰기, (name,idx) 값 넣기
     nutritional_dict = update_dict(nutritional_dict)
-    nutritional_dict["idx"] = idx
+    # nutritional_dict["idx"] = idx
     nutritional_dict["name"] = name
     
     #date 넣기
@@ -597,7 +597,7 @@ def multiply_numeric(x, factor):
 #dict 덮어쓰기
 def update_dict(other_dict):
     key_dict = {
-        "idx": 0.0,
+        "idx": 0,
         "name": 0.0,
         "nutrition": {
             "kcal": 0.0,

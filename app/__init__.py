@@ -29,6 +29,7 @@ def create_app():
     from . import register
     from . import login
     from . import todayfood
+    from . import ai_cancel_food
 
 
     app.register_blueprint(ai_stock.bp)
@@ -37,6 +38,7 @@ def create_app():
     app.register_blueprint(register.bp)
     app.register_blueprint(login.bp)
     app.register_blueprint(todayfood.bp)
+    app.register_blueprint(ai_cancel_food.bp)
 
 
 
