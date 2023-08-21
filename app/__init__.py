@@ -25,10 +25,18 @@ def create_app():
     # blueprint
     from . import ai_stock
     from . import ai_food
+    from . import ocr
+    from . import register
+    from . import login
+    from . import todayfood
 
 
     app.register_blueprint(ai_stock.bp)
     app.register_blueprint(ai_food.bp)
+    app.register_blueprint(ocr.bp)
+    app.register_blueprint(register.bp)
+    app.register_blueprint(login.bp)
+    app.register_blueprint(todayfood.bp)
 
 
 

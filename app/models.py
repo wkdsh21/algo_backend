@@ -9,7 +9,7 @@ class User(db.Model):
     allergy=db.Column(db.Text, nullable=True)
     hate=db.Column(db.Text, nullable=True)
     weight=db.Column(db.Integer, nullable=False)
-    tall=db.Column(db.Integer, nullable=False)
+    height=db.Column(db.Integer, nullable=False)
 
 class Food(db.Model):
     idx=db.Column(db.Integer, primary_key=True)
@@ -17,9 +17,9 @@ class Food(db.Model):
     user = db.relationship('User', back_populates="food")
     name=db.Column(db.String(45), nullable=False)
     nutrition=db.Column(db.Text, nullable=False)
-    date=db.Column(db.Date, nullable=False)
+    date=db.Column(db.String(45), nullable=False)
     hate=db.Column(db.Text, nullable=False)
-    meterial=db.Column(db.Text, nullable=False)
+    material=db.Column(db.Text, nullable=False)
 
 
 class Stock(db.Model):
