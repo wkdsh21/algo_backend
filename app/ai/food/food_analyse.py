@@ -641,7 +641,8 @@ def update_dict(other_dict):
         "hate": [],
         "allergy": [],
         "userallergy": [],
-        "material": []
+        "material": [],
+        "prompt" : "no result"
     }
     data = {
         key: other_dict.get(key, value) if isinstance(value, (int, float, str, list))

@@ -13,10 +13,11 @@ import re
 from app import db
 from app.models import *
 
-#from app.ai.stock.stock import stock
 import os
 
 from app.ai.food import food_analyse
+#pip install openai
+import openai
 
 
 bp = Blueprint('ai_food', __name__, url_prefix='/foodcnn')
@@ -37,10 +38,10 @@ def ai_stock_api():
             
             #이름 받아오기
             names = food_analyse.get_name(r"app\ai\food\output\__image.xml")
-            # print(names)
+            print(names)
 
             food_names = food_analyse.get_food_name(names)
-            # print(food_names)
+            print(food_names)
             #음식 무게 추출
             food_weight = food_analyse.get_food_weight(r"C:\AI\fooddata\yolov3\456.jpg")
             # print(food_weight)
@@ -53,19 +54,22 @@ def ai_stock_api():
             food_dict = food_analyse.food_response_dto(nutritional)
             #print(food_dict)
             
+            #gpt 답변
+            prompt = compare_food_and_standard_value(food_dict)
+            food_dict["prompt"] = prompt
+
             #db 저장
             db_pull_data = store_db(food_dict)  
             
             #json 변환
             json_string = json.dumps(db_pull_data, ensure_ascii=False, indent=4)  # indent 옵션으로 가독성을 높일 수 있음
-
-            
+                
+                
         except Exception:
             error = {"idx" : -1}
             return json.dumps(error, ensure_ascii=False, indent=4)
 
-       
-          
+
         return json_string
 
     return "post 오류"
@@ -94,15 +98,99 @@ def delete_files_with_prefix(folder_path, prefix):
             os.remove(file_path)
             print(f"Deleted: {filename}")
 
-
 def store_db(responsedata):
     q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
     db.session.add(q)
     db.session.commit()
     
     responsedata["idx"] = q.idx
+    
     return responsedata
 
 
 def compare_food_and_standard_value(food_dict):
-    3
+    #영양분 하루 기준치
+    standard_value ={
+        "kcal": 0.0,
+        "protein": 55.0,
+        "fat": 54.0,
+        "glucide": 324.0,
+        "sugar": 100.0,
+        "dietaryfiber": 25.0,
+        "calcium": 700.0,
+        "Iron": 12.0,
+        "magnesium": 315.0,
+        "caffeine": 0.0,
+        "Potassium": 3500.0,
+        "Natrium": 2000.0,
+        "vitamin": 0.0,
+        "cholesterol": 300.0,
+        "fatty": 0.0,
+        "transfat": 0.0
+    }
+    
+    json_standard_value =json.dumps(standard_value)
+    
+    #방금 먹은 음식 영양정보
+    json_food_dict = json.dumps(food_dict["nutrition"])
+
+    #지금까지 총 영양소
+    today_user_nutrution = today_all_nutrution()
+    json_today = json.dumps(today_user_nutrution)    
+    
+    #오늘 총영양소 + 방금 먹은 음식 영양정보 와 지금까지 오늘 총 영양소 비교
+    #gpt?? or 임의 설정?
+    prompt =f"""
+    하루 기준 영양분 : {json_standard_value}, \n 
+    지금까지 먹은 총 영양소: {json_today}, \n 
+    이제 먹을 음식 영양소 : {json_food_dict}, \n 
+    이제 먹을 음식 영양소와 지금까지 먹을 음식 영양소를 더해서 하루 기준 영양소와 분석해주고 
+    이제 먹을 음식 영양소를 섭취했을 때, 위험한 영양소를 0~ 2가지를 알려줘 , 너가 무엇을 했는지 말고 결과값을 답변해줘. 총 답변은 100자 이내로 답변해줘.(한국어로 답변)"""
+    
+    result = use_gpt_api(prompt)
+    return result
+
+
+def today_all_nutrution():
+    all_nutrition = []
+    today_nurtition = Food.query.filter(Food.useridx == 1, Food.date == datetime.date.today()).all()
+    for food in today_nurtition:
+        food_dict = json.loads(food.nutrition)
+        all_nutrition.append(food_dict)
+    
+    sum_dict = {}
+    for d in all_nutrition:
+        for key, value in d.items():
+            if key in sum_dict:
+                try:
+                    print(type(value))
+                    sum_dict[key] += float(value)
+                except ValueError:
+                    pass  # 변환 실패 시 무시
+            else:
+                try:
+                    sum_dict[key] = float(value)
+                except ValueError:
+                    pass  # 변환 실패 시 무시
+
+    print(sum_dict)
+    return(sum_dict)
+
+
+def use_gpt_api(prompt):
+    OPENAI_YOUR_KEY = "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"
+    openai.api_key = OPENAI_YOUR_KEY
+
+    MODEL = "gpt-3.5-turbo"
+    USER_INPUT_MSG = prompt
+
+    response = openai.ChatCompletion.create(
+        model=MODEL,
+        messages=[
+            {"role": "system", "content": "You are a Korean nutritionist"},
+            {"role": "user", "content": USER_INPUT_MSG}, 
+            {"role": "assistant", "content": "Who's there?"},
+        ],
+        temperature=0,
+    )
+    return response['choices'][0]['message']['content']
