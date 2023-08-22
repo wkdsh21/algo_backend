@@ -6,6 +6,9 @@ from app.ai.food.detect_1231 import detect
 from datetime import datetime
 import re
 
+from app import db
+from app.models import *
+import json
 #필요한 것 음식 판단 모델, 중량 예상 모델
 #영양데이터, 'name' : '음식이름' 데이터
 
@@ -16,11 +19,11 @@ def detect_image():
     weights = r'app\ai\food\weights\best_403food_e200b150v2.pt'
     source = r'app\ai\food\data\samples'
     output = r'app\ai\food\output'
-    img_size = 255
+    img_size = 250
     conf_thres = 0.3
     iou_thres = 0.5
     half = False
-    view_img = False
+    view_img = True
     save_txt = False
     save_xml = True
     classes = None
@@ -521,6 +524,9 @@ def food_response_dto(nutritional):
     allergy = get_allergy(material)
     nutritional_dict["allergy"] = allergy
 
+    userallergy = get_user_allergy(allergy)
+    nutritional_dict["userallergy"] = userallergy
+
     print(nutritional_dict)
     return nutritional_dict
 
@@ -572,7 +578,6 @@ def get_allergy(material):
         "소고기", "치즈", "닭고기", "대구", "홍합", "참치", "연어",
         "조개", "오징어", "멸치"
     ]
-    #print(material)
 
     allergy = []
     for material_value in material:
@@ -584,6 +589,21 @@ def get_allergy(material):
     #print(allergy)
     return allergy
 
+#유저 알레르기 성분 검출
+def get_user_allergy(allergy):
+    q = User.query.get(1)
+    user_allergy_list = json.loads(q.allergy)
+    print(user_allergy_list)
+    print(allergy)
+    common_elements = []
+    
+    for item in user_allergy_list:
+        if item in allergy:
+            common_elements.append(item)
+    print(common_elements)
+    return common_elements
+    
+    
 
 
 
@@ -620,7 +640,9 @@ def update_dict(other_dict):
         "date": "YYYY-MM-DD",
         "hate": [],
         "allergy": [],
-        "material": []
+        "userallergy": [],
+        "material": [],
+        "prompt" : "no result"
     }
     data = {
         key: other_dict.get(key, value) if isinstance(value, (int, float, str, list))
@@ -654,6 +676,8 @@ if __name__ == '__main__':
     #print(nutritional)
 
     food_dict = food_response_dto(nutritional)
+
+    
 
    
    
