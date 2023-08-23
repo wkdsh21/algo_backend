@@ -65,8 +65,9 @@ def ai_stock_api():
             json_string = json.dumps(db_pull_data, ensure_ascii=False, indent=4)  # indent 옵션으로 가독성을 높일 수 있음
                 
                 
-        except Exception:
+        except Exception as e:
             error = {"idx" : -1}
+            print(str(e))
             return json.dumps(error, ensure_ascii=False, indent=4)
 
 
@@ -87,6 +88,10 @@ def delete_and_save_image(folder_path, image_data):
     with open(image_path, "wb") as image_file:
         image_file.write(image_data)
 
+    #이미지 리사이즈
+    # output_path =os.path.join(folder_path,"__image.jpg")
+    # resize_image(image_path,output_path,target_size=(224,224))
+
     print("Image saved successfully.")
 
 def delete_files_with_prefix(folder_path, prefix):
@@ -97,6 +102,15 @@ def delete_files_with_prefix(folder_path, prefix):
             file_path = os.path.join(folder_path, filename)
             os.remove(file_path)
             print(f"Deleted: {filename}")
+
+def resize_image(input_path, output_path, target_size):
+    try:
+        image = Image.open(input_path)
+        resized_image = image.resize(target_size)
+        resized_image.save(output_path)
+        print("Image resized and saved successfully!")
+    except Exception as e:
+        print("Error resizing image:", str(e))
 
 def store_db(responsedata):
     q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
@@ -145,7 +159,7 @@ def compare_food_and_standard_value(food_dict):
     지금까지 먹은 총 영양소: {json_today}, \n 
     이제 먹을 음식 영양소 : {json_food_dict}, \n 
     이제 먹을 음식 영양소와 지금까지 먹을 음식 영양소를 더해서 하루 기준 영양소와 분석해주고 
-    이제 먹을 음식 영양소를 섭취했을 때, 위험한 영양소를 0~ 2가지를 알려줘 , 너가 무엇을 했는지 말고 결과값을 답변해줘. 총 답변은 100자 이내로 답변해줘.(한국어로 답변)"""
+    이제 먹을 음식 영양소를 섭취했을 때, 위험한 영양소를 설명해줘"""
     
     result = use_gpt_api(prompt)
     return result
@@ -174,7 +188,7 @@ def today_all_nutrution():
                     pass  # 변환 실패 시 무시
 
     print(sum_dict)
-    return(sum_dict)
+    return sum_dict
 
 
 def use_gpt_api(prompt):
@@ -187,7 +201,7 @@ def use_gpt_api(prompt):
     response = openai.ChatCompletion.create(
         model=MODEL,
         messages=[
-            {"role": "system", "content": "You are a Korean nutritionist"},
+            {"role": "system", "content": "You are a Korean nutritionist, 총 답변은 100자 이내로 답변해줘.(한국어로 답변),  너가 무엇을 했는지 말고 결과값을 답변해줘."},
             {"role": "user", "content": USER_INPUT_MSG}, 
             {"role": "assistant", "content": "Who's there?"},
         ],
