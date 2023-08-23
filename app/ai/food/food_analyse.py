@@ -19,7 +19,7 @@ def detect_image():
     weights = r'app\ai\food\weights\best_403food_e200b150v2.pt'
     source = r'app\ai\food\data\samples'
     output = r'app\ai\food\output'
-    img_size = 250
+    img_size = 224
     conf_thres = 0.3
     iou_thres = 0.5
     half = False
