@@ -20,4 +20,4 @@ def login_api():
         # print("요약: ", page.summary)
         # print("url: ", page.fullurl)
         # print(page.text)  # 전체 페이지 내용 보여주기
-        return page.summary
+        return json.dumps({"summary":page.summary})

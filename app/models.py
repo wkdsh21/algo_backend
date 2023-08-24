@@ -10,6 +10,7 @@ class User(db.Model):
     hate=db.Column(db.Text, nullable=True)
     weight=db.Column(db.Integer, nullable=False)
     height=db.Column(db.Integer, nullable=False)
+    kcal=db.Column(db.Integer, nullable=False)
 
 class Food(db.Model):
     idx=db.Column(db.Integer, primary_key=True)

@@ -124,7 +124,10 @@ def ai_stock_api():
                         with open('./app/ai/stock/material.txt', 'r', encoding='utf-8') as f:
                             responsedata["material"]=[line.strip() for line in f if line.strip() in rawmtrl]
                         print(responsedata["material"])
+                        with open('./app/ai/stock/hate.txt', 'r', encoding='utf-8') as f:
+                            responsedata["hate"]=[line.strip() for line in f if line.strip() in responsedata["material"]]
                     responsedata["allergy"]=allergy.split(",") if allergy else []
+                    response["allergy"][-1]=response["allergy"][-1][:-2]
                     # for i in rawmtrl:
                     #     max=0
                     #     with open('./app/ai/stock/material.txt', 'r', encoding='utf-8') as f:
