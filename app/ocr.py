@@ -12,6 +12,7 @@ import time
 from app.models import *
 from app import db
 import sqlite3
+from app.ai_food import compare_food_and_standard_value
 
 bp = Blueprint('ocr', __name__, url_prefix='/ocr')
 
@@ -48,7 +49,7 @@ def ocr_api():
         if 'image' in request.files:
             image = request.files['image']
         else:
-            return "image null"
+            return json.dumps({"code":500})
         
         api_url = 'https://dru0jyamtv.apigw.ntruss.com/custom/v1/24333/588d160384902c3d25c0b2e6f81fed5b4d7430703bec6b924e528c922c1c4690/general'
         secret_key = 'WmVycWdsZnNzSU9FdXBkV3VmWlhpRmprQVJQQ0RNS2o='
@@ -109,8 +110,11 @@ def ocr_api():
             if max>0.8:
                 responsedata["name"]=maxword
                 print(maxword)
+            else:
+                return json.dumps({"code":500})
         else:
             print(f"API 요청 에러: {response.status_code}")
+            return json.dumps({"code":500})
         conn = sqlite3.connect('./app/ai/stock/ocr.db')
 
         # 커서 생성
@@ -135,6 +139,7 @@ def ocr_api():
                 allergy=data["body"]["items"][0]["item"]["allergy"]
                 allergy=allergy if allergy!="알수없음" else []
                 if not(rawmtrl or allergy):
+                    responsedata["prompt"]=compare_food_and_standard_value(responsedata)
                     q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
                     db.session.add(q)
                     db.session.commit()
@@ -158,13 +163,15 @@ def ocr_api():
                     if responsedata["allergy"]:
                         responsedata["allergy"][-1]=responsedata["allergy"][-1][:-2]
             else:
+                responsedata["prompt"]=compare_food_and_standard_value(responsedata)
                 q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
                 db.session.add(q)
                 db.session.commit()
                 return json.dumps(responsedata,ensure_ascii=False)
         else:
             print("API 요청 실패:", response.status_code)
-
+            return json.dumps({"code":500})
+        responsedata["prompt"]=compare_food_and_standard_value(responsedata)
         q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
         db.session.add(q)
         db.session.commit()

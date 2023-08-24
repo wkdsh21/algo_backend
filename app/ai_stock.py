@@ -9,6 +9,7 @@ from difflib import SequenceMatcher
 import os
 from app.models import *
 from app import db
+from app.ai_food import compare_food_and_standard_value
 
 bp = Blueprint('ai_stock', __name__, url_prefix='/stockcnn')
 
@@ -106,6 +107,7 @@ def ai_stock_api():
                 allergy=data["body"]["items"][0]["item"]["allergy"]
                 allergy=allergy if allergy!="알수없음" else []
                 if not(rawmtrl or allergy):
+                    responsedata["prompt"]=compare_food_and_standard_value(responsedata)
                     q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
                     db.session.add(q)
                     db.session.commit()
@@ -127,7 +129,8 @@ def ai_stock_api():
                         with open('./app/ai/stock/hate.txt', 'r', encoding='utf-8') as f:
                             responsedata["hate"]=[line.strip() for line in f if line.strip() in responsedata["material"]]
                     responsedata["allergy"]=allergy.split(",") if allergy else []
-                    response["allergy"][-1]=response["allergy"][-1][:-2]
+                    if responsedata["allergy"]:
+                        response["allergy"][-1]=response["allergy"][-1][:-2]
                     # for i in rawmtrl:
                     #     max=0
                     #     with open('./app/ai/stock/material.txt', 'r', encoding='utf-8') as f:
@@ -175,6 +178,7 @@ def ai_stock_api():
                     # responsedata["material"]=processed_parts
                     # responsedata["allergy"]=allergy.split(",") if allergy!="알수없음" else []
             else:
+                responsedata["prompt"]=compare_food_and_standard_value(responsedata)
                 q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
                 db.session.add(q)
                 db.session.commit()
@@ -183,6 +187,7 @@ def ai_stock_api():
         else:
             print("API 요청 실패:", response.status_code)
         print(responsedata)
+        responsedata["prompt"]=compare_food_and_standard_value(responsedata)
         q = Food(useridx=1,name=responsedata["name"],nutrition=json.dumps(responsedata["nutrition"],ensure_ascii=False),date=datetime.date.today(),hate=json.dumps(responsedata["hate"],ensure_ascii=False),material=json.dumps(responsedata["material"],ensure_ascii=False))
         db.session.add(q)
         db.session.commit()
