@@ -155,11 +155,11 @@ def compare_food_and_standard_value(food_dict):
     #오늘 총영양소 + 방금 먹은 음식 영양정보 와 지금까지 오늘 총 영양소 비교
     #gpt?? or 임의 설정?
     prompt =f"""
-    하루 기준 영양분 : {json_standard_value}, \n 
+    하루 기준치 영양분 : {json_standard_value}, \n 
     지금까지 먹은 총 영양소: {json_today}, \n 
     이제 먹을 음식 영양소 : {json_food_dict}, \n 
     이제 먹을 음식 영양소와 지금까지 먹을 음식 영양소를 더해서 하루 기준 영양소와 분석해주고 
-    이제 먹을 음식 영양소를 섭취했을 때, 위험한 영양소를 설명해줘"""
+    이제 먹을 음식 영양소를 섭취했을 때, 위험한 영양소를 설명해줘(100자 이내로 답변)"""
     
     result = use_gpt_api(prompt)
     return result
@@ -177,11 +177,10 @@ def today_all_nutrution():
         for key, value in d.items():
             if key in sum_dict:
                 try:
-                    print(type(value))
                     sum_dict[key] += float(value)
                 except ValueError:
                     pass  # 변환 실패 시 무시
-            else:
+            else:   
                 try:
                     sum_dict[key] = float(value)
                 except ValueError:
@@ -201,9 +200,16 @@ def use_gpt_api(prompt):
     response = openai.ChatCompletion.create(
         model=MODEL,
         messages=[
-            {"role": "system", "content": "You are a Korean nutritionist, 총 답변은 100자 이내로 답변해줘.(한국어로 답변),  너가 무엇을 했는지 말고 결과값을 답변해줘."},
+            {"role": "system", "content": 
+             """You are a Korean nutritionist,
+             각답변에 대해 다음의 단계를 따르세요.
+             step1 : 하루 기준치 영양분과 (지금까지 먹은 총 영양소 + 이제 먹을 음식 영양소)를 분석함.(답변에 포함하지 않음)
+             step2 : 이제 먹을 영양소를 먹음으로써 과한 영양소와 부족한 영양소값 출력.
+             step3 : 그에 대한 설명과 위험요소 간단하게 설명.  
+             step4 : step1보다는 step2와 step3 위주로 출력.
+             step5 : 답변은 "이것을 섭취한다면..." 으로 시작해.
+             또한 한국어로 총 답변량을 100자 이내로 출력해줘, step1, step2 ...등 단계 생략해 """},
             {"role": "user", "content": USER_INPUT_MSG}, 
-            {"role": "assistant", "content": "Who's there?"},
         ],
         temperature=0,
     )
