@@ -19,5 +19,5 @@ def login_api():
         # print("제목: ", page.title)  # 제목확인, 요약, url 확인
         # print("요약: ", page.summary)
         # print("url: ", page.fullurl)
-        # print(page.text)  # 전체 페이지 내용 보여주기
+        # print(page.text)  # 전체 페이지 내용 보여주기.
         return json.dumps({"summary":page.summary})
